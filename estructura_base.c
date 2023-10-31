@@ -44,13 +44,13 @@ int main() {
 	// Actividades predeterminadas
 	Actividad actividades[] = {
     	{1, "Bañarse", 3},
-    	{2, "Gimnasio", 4},
-    	{3, "Comprar alimentos", 2},
-    	{4, "Pasear a tu mascota", 3},
-    	{5, "Trabajo", 5},
-    	{6, "Proyectos personales", 4},
-    	{7, "Tiempo con pareja", 5},
-    	{8, "Tiempo recreativo", 3}
+    	{2, "Gimnasio", 2},
+    	{3, "Comprar alimentos", 5},
+    	{4, "Pasear a tu mascota", 1},
+    	{5, "Trabajo", 8},
+    	{6, "Proyectos personales", 6},
+    	{7, "Tiempo con pareja", 7,
+    	{8, "Tiempo recreativo", 4}
 	};
 
 	for (int i = 0; i < 8; i++) {
