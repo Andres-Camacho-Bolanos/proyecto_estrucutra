@@ -17,6 +17,12 @@ typedef struct Node {
 	struct Node* prev;
 } Node;
 
+// Definición de una estructura de grafo
+typedef struct Grafo {
+    int numNodos;
+    int** matrizAdyacencia;
+} Grafo;
+
 // Función para agregar una actividad a la lista circular
 void Actividades(Node** head, Actividad) {
 	// Implementa la lógica para agregar la actividad a la lista
@@ -38,30 +44,36 @@ void marcadorActividad(Node* head, Actividad) {
 }
 
 int main() {
-	// Inicialización de la lista circular de actividades
-	Node* head = NULL;
+    Node* head = NULL;
+    int numActividades = 8;
 
-	// Actividades predeterminadas
-	Actividad actividades[] = {
-    	{1, "Bañarse", 3},
-    	{2, "Gimnasio", 2},
-    	{3, "Comprar alimentos", 5},
-    	{4, "Pasear a tu mascota", 1},
-    	{5, "Trabajo", 8},
-    	{6, "Proyectos personales", 6},
-    	{7, "Tiempo con pareja", 7,
-    	{8, "Tiempo recreativo", 4}
-	};
+    Actividad actividades[] = {
+        {1, "Bañarse", 3},
+        {2, "Gimnasio", 4},
+        {3, "Comprar alimentos", 2},
+        {4, "Pasear a tu mascota", 3},
+        {5, "Trabajo", 5},
+        {6, "Proyectos personales", 4},
+        {7, "Tiempo con pareja", 5},
+        {8, "Tiempo recreativo", 3}
+    };
 
-	for (int i = 0; i < 8; i++) {
-    	addActividad(&head, actividades[i]);
-	}
+    for (int i = 0; i < numActividades; i++) {
+        head = agregarActividad(head, actividades[i]);
+    }
 
-	// Aquí puedes implementar las demás estructuras de datos y funcionalidades
+    // Crear el grafo
+    Grafo* grafo = crearGrafo(actividades, numActividades);
 
-	// Por ejemplo, podrías implementar la cola para las alarmas, grafos para la ruta ideal, árboles para actividades secundarias y pilas para el marcador de actividades personales.
+    // Realizar una búsqueda topológica en el grafo
+    Node** ordenRecomendado = topologicalSort(grafo, head, numActividades);
 
-	// Luego, puedes implementar la lógica para que el usuario interactúe con el sistema y obtenga recomendaciones de rutina.
+    printf("Orden recomendado de actividades (de mayor a menor prioridad):\n");
+    for (int i = numActividades - 1; i >= 0; i--) {
+        printf("%s\n", ordenRecomendado[i]->dato.nombre);
+    }
 
-	return 0;
+    // Limpieza de memoria
+
+    return 0;
 }
