@@ -1,4 +1,4 @@
-(Node* head, Actividad actividad) {
+void Actividades(Node* head, Actividad actividad) {
     Node* newNode = (Node*)malloc(sizeof(Node));
     newNode->dato = actividad;
 
