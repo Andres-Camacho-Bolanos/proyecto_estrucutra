@@ -95,56 +95,30 @@ int main() {
     // Inicializar el generador de números aleatorios con la hora actual
     srand(time(NULL));
 
+  Pila* pilaMarcadores = inicializarPila(5);
+
     while (1) {
         // Simulación: Aumentar una hora cada 10 segundos
         segundosTranscurridos += 10;
         if (segundosTranscurridos >= 3600) {
             segundosTranscurridos = 0;
             aumentarHora(&hora);
-        }
 
-        // Simulación: Programar una actividad aleatoria en una hora específica
-        if (rand() % 10 == 0) { // 1 de cada 10 segundos
-            Actividad actividad;
-            actividad.id = rand() % 1000;
-            sprintf(actividad.nombre, "Actividad %d", actividad.id);
-            actividad.prioridad = rand() % 5 + 1; // Prioridad aleatoria del 1 al 5
-
-            // Buscar la hora en el árbol y agregar la actividad
-            TreeNode* nodoHora = arbolHoras;
-            TreeNode* nodoPadre = NULL;
-
-            while (nodoHora != NULL) {
-                nodoPadre = nodoHora;
-
-                if (hora < nodoHora->hora) {
-                    nodoHora = nodoHora->izquierda;
-                } else if (hora > nodoHora->hora) {
-                    nodoHora = nodoHora->derecha;
-                } else {
-                    // Hora encontrada, agregar la actividad programada
-                    agregarActividadProgramada(nodoHora, actividad);
-                    break;
+            // Reiniciar las alarmas y los marcadores activos a la hora 0
+            if (hora == 0) {
+                // Limpia la cola de alarmas
+                while (!estaVacia(colaAlarmas)) {
+                    eliminarAlarma(colaAlarmas);
                 }
-            }
 
-            // Si la hora no se encontró en el árbol, crear un nuevo nodo
-            if (nodoHora == NULL) {
-                nodoHora = inicializarNodo(hora);
-                agregarActividadProgramada(nodoHora, actividad);
-
-                if (nodoPadre == NULL) {
-                    arbolHoras = nodoHora;
-                } else if (hora < nodoPadre->hora) {
-                    nodoPadre->izquierda = nodoHora;
-                } else {
-                    nodoPadre->derecha = nodoHora;
+                // Limpia la pila de marcadores
+                while (!estaVacia(pilaMarcadores)) {
+                    pop(pilaMarcadores);
                 }
             }
         }
 
-
-    for (int i = 0; i < numActividades; i++) {
+	 for (int i = 0; i < numActividades; i++) {
         head = agregarActividad(head, actividades[i]);
     }
 
@@ -194,6 +168,47 @@ int main() {
     // Imprimir las prioridades actualizadas
     for (int i = 0; i < numActividades; i++) {
         printf("Actividad: %s, Prioridad: %d\n", actividades[i].nombre, actividades[i].prioridad);
+    }
+
+        // Simulación: Programar una actividad aleatoria en una hora específica
+        if (rand() % 10 == 0) { // 1 de cada 10 segundos
+            Actividad actividad;
+            actividad.id = rand() % 1000;
+            sprintf(actividad.nombre, "Actividad %d", actividad.id);
+            actividad.prioridad = rand() % 5 + 1; // Prioridad aleatoria del 1 al 5
+
+            // Buscar la hora en el árbol y agregar la actividad
+            TreeNode* nodoHora = arbolHoras;
+            TreeNode* nodoPadre = NULL;
+
+            while (nodoHora != NULL) {
+                nodoPadre = nodoHora;
+
+                if (hora < nodoHora->hora) {
+                    nodoHora = nodoHora->izquierda;
+                } else if (hora > nodoHora->hora) {
+                    nodoHora = nodoHora->derecha;
+                } else {
+                    // Hora encontrada, agregar la actividad programada
+                    agregarActividadProgramada(nodoHora, actividad);
+                    break;
+                }
+            }
+
+            // Si la hora no se encontró en el árbol, crear un nuevo nodo
+            if (nodoHora == NULL) {
+                nodoHora = inicializarNodo(hora);
+                agregarActividadProgramada(nodoHora, actividad);
+
+                if (nodoPadre == NULL) {
+                    arbolHoras = nodoHora;
+                } else if (hora < nodoPadre->hora) {
+                    nodoPadre->izquierda = nodoHora;
+                } else {
+                    nodoPadre->derecha = nodoHora;
+                }
+            }
+        }
     }
 	
     // Limpieza de memoria
