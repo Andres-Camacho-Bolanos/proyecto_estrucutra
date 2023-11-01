@@ -23,6 +23,19 @@ typedef struct Grafo {
     int** matrizAdyacencia;
 } Grafo;
 
+// Definición de una estructura de alarma para las actividades
+typedef struct Alarma {
+    Actividad actividad;
+    // Otros campos relacionados con la alarma
+} Alarma;
+
+// Definición de una estructura de cola
+typedef struct Cola {
+    Alarma* elementos;
+    int frente, fin;
+    int capacidad;
+} Cola;
+
 // Función para agregar una actividad a la lista circular
 void Actividades(Node** head, Actividad) {
 	// Implementa la lógica para agregar la actividad a la lista
@@ -72,6 +85,24 @@ int main() {
     for (int i = numActividades - 1; i >= 0; i--) {
         printf("%s\n", ordenRecomendado[i]->dato.nombre);
     }
+
+    Cola* colaAlarmas = inicializarCola(5);
+
+    // Agregar alarmas de ejemplo
+    Alarma alarma1 = {actividades[0]};
+    Alarma alarma2 = {actividades[3]};
+
+    agregarAlarma(colaAlarmas, alarma1);
+    agregarAlarma(colaAlarmas, alarma2);
+
+    // Mostrar las alarmas
+    mostrarAlarmas(colaAlarmas);
+
+    // Eliminar una alarma (cuando se dispara)
+    eliminarAlarma(colaAlarmas);
+
+    // Mostrar las alarmas actualizadas
+    mostrarAlarmas(colaAlarmas);
 
     // Limpieza de memoria
 
