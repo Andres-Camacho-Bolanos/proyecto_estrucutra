@@ -29,6 +29,13 @@ typedef struct Alarma {
     // Otros campos relacionados con la alarma
 } Alarma;
 
+// Definición de una estructura de pila
+typedef struct Pila {
+    Node* top;
+    int capacidad;
+    int tamaño;
+} Pila;
+
 // Definición de una estructura de cola
 typedef struct Cola {
     Alarma* elementos;
@@ -104,6 +111,25 @@ int main() {
     // Mostrar las alarmas actualizadas
     mostrarAlarmas(colaAlarmas);
 
+    // Crear una pila de marcadores con una capacidad máxima de 5 marcadores
+    Pila* pilaMarcadores = inicializarPila(5);
+
+    // Agregar marcadores de ejemplo (puedes pedir al usuario que seleccione actividades)
+    push(pilaMarcadores, actividades[0]); // Marcar "Bañarse"
+    push(pilaMarcadores, actividades[5]); // Marcar "Proyectos personales"
+
+    // Simulación: Incrementar la prioridad de las actividades marcadas
+    while (!estaVacia(pilaMarcadores)) {
+        Actividad actividadMarcada = pop(pilaMarcadores);
+        actividadMarcada.prioridad *= 2;
+        printf("Se ha marcado la actividad: %s\n", actividadMarcada.nombre);
+    }
+
+    // Imprimir las prioridades actualizadas
+    for (int i = 0; i < numActividades; i++) {
+        printf("Actividad: %s, Prioridad: %d\n", actividades[i].nombre, actividades[i].prioridad);
+    }
+	
     // Limpieza de memoria
 
     return 0;
