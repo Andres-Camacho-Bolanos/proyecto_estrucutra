@@ -43,6 +43,14 @@ typedef struct Cola {
     int capacidad;
 } Cola;
 
+// Definición de una estructura de un nodo de árbol para representar actividades programadas en una hora específica
+typedef struct TreeNode {
+    int hora;
+    Node* actividades; // Lista de actividades programadas para esta hora
+    struct TreeNode* izquierda;
+    struct TreeNode* derecha;
+} TreeNode;
+
 // Función para agregar una actividad a la lista circular
 void Actividades(Node** head, Actividad) {
 	// Implementa la lógica para agregar la actividad a la lista
@@ -66,6 +74,8 @@ void marcadorActividad(Node* head, Actividad) {
 int main() {
     Node* head = NULL;
     int numActividades = 8;
+    int hora = 0; // Inicialmente, la hora es 0
+    int segundosTranscurridos = 0;
 
     Actividad actividades[] = {
         {1, "Bañarse", 3},
@@ -77,6 +87,61 @@ int main() {
         {7, "Tiempo con pareja", 5},
         {8, "Tiempo recreativo", 3}
     };
+
+    // Crear un árbol para almacenar actividades programadas en horas específicas
+    TreeNode* arbolHoras = NULL;
+
+    // Inicializar el generador de números aleatorios con la hora actual
+    srand(time(NULL));
+
+    while (1) {
+        // Simulación: Aumentar una hora cada 10 segundos
+        segundosTranscurridos += 10;
+        if (segundosTranscurridos >= 3600) {
+            segundosTranscurridos = 0;
+            aumentarHora(&hora);
+        }
+
+        // Simulación: Programar una actividad aleatoria en una hora específica
+        if (rand() % 10 == 0) { // 1 de cada 10 segundos
+            Actividad actividad;
+            actividad.id = rand() % 1000;
+            sprintf(actividad.nombre, "Actividad %d", actividad.id);
+            actividad.prioridad = rand() % 5 + 1; // Prioridad aleatoria del 1 al 5
+
+            // Buscar la hora en el árbol y agregar la actividad
+            TreeNode* nodoHora = arbolHoras;
+            TreeNode* nodoPadre = NULL;
+
+            while (nodoHora != NULL) {
+                nodoPadre = nodoHora;
+
+                if (hora < nodoHora->hora) {
+                    nodoHora = nodoHora->izquierda;
+                } else if (hora > nodoHora->hora) {
+                    nodoHora = nodoHora->derecha;
+                } else {
+                    // Hora encontrada, agregar la actividad programada
+                    agregarActividadProgramada(nodoHora, actividad);
+                    break;
+                }
+            }
+
+            // Si la hora no se encontró en el árbol, crear un nuevo nodo
+            if (nodoHora == NULL) {
+                nodoHora = inicializarNodo(hora);
+                agregarActividadProgramada(nodoHora, actividad);
+
+                if (nodoPadre == NULL) {
+                    arbolHoras = nodoHora;
+                } else if (hora < nodoPadre->hora) {
+                    nodoPadre->izquierda = nodoHora;
+                } else {
+                    nodoPadre->derecha = nodoHora;
+                }
+            }
+        }
+
 
     for (int i = 0; i < numActividades; i++) {
         head = agregarActividad(head, actividades[i]);
