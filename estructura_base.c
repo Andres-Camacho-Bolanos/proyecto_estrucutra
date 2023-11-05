@@ -34,7 +34,7 @@ typedef struct Alarma {
 typedef struct Pila {
     Node* top;
     int capacidad;
-    int tamaño;
+    int tamano;
 } Pila;
 
 // Definición de una estructura de cola
@@ -296,7 +296,8 @@ int main() {
     // Inicializar el generador de números aleatorios con la hora actual
     srand(time(NULL));
 
-  Pila* pilaMarcadores = inicializarPila(5);
+    Pila* pilaMarcadores = inicializarPila(5);
+    Cola* colaAlarmas = inicializarCola(5);
 
     while (1) {
         // Simulación: Aumentar una hora cada 10 segundos
@@ -319,57 +320,21 @@ int main() {
             }
         }
 
-	 for (int i = 0; i < numActividades; i++) {
-        head = agregarActividad(head, actividades[i]);
-    }
+        // Agregar actividades a la lista circular (puedes omitir este bucle si las actividades ya están en la lista)
+        for (int i = 0; i < numActividades; i++) {
+            head = agregarActividad(head, actividades[i]);
+        }
 
-    // Crear el grafo
-    Grafo* grafo = crearGrafo(actividades, numActividades);
+        // Crear el grafo
+        Grafo* grafo = crearGrafo(actividades, numActividades);
 
-    // Realizar una búsqueda topológica en el grafo
-    Node** ordenRecomendado = topologicalSort(grafo, head, numActividades);
+        // Realizar una búsqueda topológica en el grafo
+        Node** ordenRecomendado = topologicalSort(grafo, head, numActividades);
 
-    printf("Orden recomendado de actividades (de mayor a menor prioridad):\n");
-    for (int i = numActividades - 1; i >= 0; i--) {
-        printf("%s\n", ordenRecomendado[i]->dato.nombre);
-    }
-
-    Cola* colaAlarmas = inicializarCola(5);
-
-    // Agregar alarmas de ejemplo
-    Alarma alarma1 = {actividades[0]};
-    Alarma alarma2 = {actividades[3]};
-
-    agregarAlarma(colaAlarmas, alarma1);
-    agregarAlarma(colaAlarmas, alarma2);
-
-    // Mostrar las alarmas
-    mostrarAlarmas(colaAlarmas);
-
-    // Eliminar una alarma (cuando se dispara)
-    eliminarAlarma(colaAlarmas);
-
-    // Mostrar las alarmas actualizadas
-    mostrarAlarmas(colaAlarmas);
-
-    // Crear una pila de marcadores con una capacidad máxima de 5 marcadores
-    Pila* pilaMarcadores = inicializarPila(5);
-
-    // Agregar marcadores de ejemplo (puedes pedir al usuario que seleccione actividades)
-    push(pilaMarcadores, actividades[0]); // Marcar "Bañarse"
-    push(pilaMarcadores, actividades[5]); // Marcar "Proyectos personales"
-
-    // Simulación: Incrementar la prioridad de las actividades marcadas
-    while (!estaVacia(pilaMarcadores)) {
-        Actividad actividadMarcada = pop(pilaMarcadores);
-        actividadMarcada.prioridad *= 2;
-        printf("Se ha marcado la actividad: %s\n", actividadMarcada.nombre);
-    }
-
-    // Imprimir las prioridades actualizadas
-    for (int i = 0; i < numActividades; i++) {
-        printf("Actividad: %s, Prioridad: %d\n", actividades[i].nombre, actividades[i].prioridad);
-    }
+        printf("Orden recomendado de actividades (de mayor a menor prioridad):\n");
+        for (int i = numActividades - 1; i >= 0; i--) {
+            printf("%s\n", ordenRecomendado[i]->dato.nombre);
+        }
 
         // Simulación: Programar una actividad aleatoria en una hora específica
         if (rand() % 10 == 0) { // 1 de cada 10 segundos
@@ -410,9 +375,10 @@ int main() {
                 }
             }
         }
-    }
-	
-    // Limpieza de memoria
 
+        // Simulación de otras funciones y lógica de tu programa
+
+        // Puedes agregar aquí la lógica para mostrar las actividades programadas en la hora actual
+    }
     return 0;
 }
