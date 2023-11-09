@@ -92,7 +92,7 @@ Dia* crearDia(int numero) {
 }
 
 void agregarActividad(Dia* dia, Actividad nuevaActividad) {
-    if (dia->cantidadActividades < 5) { // Asegurarse de que no exceda el límite de 5 actividades
+    if (dia->cantidadActividades < 5) { // Verificar antes de incrementar
         dia->actividades[dia->cantidadActividades] = nuevaActividad;
         dia->cantidadActividades++;
     } else {
@@ -120,9 +120,19 @@ Grafo* crearGrafo() {
 void agregarDiaGrafo(Grafo* grafo, Dia* nuevoDia) {
     NodoGrafo* nuevoNodo = (NodoGrafo*)malloc(sizeof(NodoGrafo));
     nuevoNodo->dia = nuevoDia;
-    nuevoNodo->siguiente = grafo->inicio;
-    grafo->inicio = nuevoNodo;
+    nuevoNodo->siguiente = NULL;
+
+    if (grafo->inicio == NULL) {
+        grafo->inicio = nuevoNodo;
+    } else {
+        NodoGrafo* nodoActual = grafo->inicio;
+        while (nodoActual->siguiente != NULL) {
+            nodoActual = nodoActual->siguiente;
+        }
+        nodoActual->siguiente = nuevoNodo;
+    }
 }
+
 // Estructura para representar un nodo en el árbol
 typedef struct NodoArbol {
     Actividad actividad;
@@ -173,46 +183,42 @@ void intercambiar(NodoGrafo* a, NodoGrafo* b) {
 }
 
 void calcularOrdenRecomendado(Grafo* grafo) {
-    NodoGrafo* nodoActual;
-    NodoGrafo* siguienteNodo;
-    int cambiado;
-
     if (grafo == NULL || grafo->inicio == NULL) {
         return;
     }
 
-    do {
-        cambiado = 0;
-        nodoActual = grafo->inicio;
+    NodoGrafo* nodoActual = grafo->inicio;
+    while (nodoActual != NULL) {
+        NodoGrafo* siguienteNodo = nodoActual->siguiente;
 
-        while (nodoActual->siguiente != NULL) {
-            siguienteNodo = nodoActual->siguiente;
-
+        while (siguienteNodo != NULL) {
             // Comparar valores de las actividades
             if (nodoActual->dia->actividades[0].valor < siguienteNodo->dia->actividades[0].valor) {
                 intercambiar(nodoActual, siguienteNodo);
-                cambiado = 1;
             }
 
-            nodoActual = siguienteNodo;
+            siguienteNodo = siguienteNodo->siguiente;
         }
-    } while (cambiado);
+
+        nodoActual = nodoActual->siguiente;
+    }
 }
 
 void imprimirArbolEnOrden(NodoArbol* raiz) {
     if (raiz != NULL) {
         imprimirArbolEnOrden(raiz->izquierda);
-        printf("%s\n", raiz->actividad.nombre);
+        printf("Día %d\n", raiz->actividad.valor);  // Imprimir el número del día
+        printf("- %s\n", raiz->actividad.nombre);   // Imprimir el nombre de la actividad
         imprimirArbolEnOrden(raiz->derecha);
     }
 }
 
 int main() {
     
-     char actividadNombre[50];
-     Actividad nuevaActividad; 
-     int decision;
-     
+    char actividadNombre[50];
+    Actividad nuevaActividad; 
+    int decision;
+    
     // Crear una cola
     Cola* cola = crearCola();
 
@@ -225,61 +231,84 @@ int main() {
     // Crear un árbol
     Arbol* arbol = crearArbol();
 
-    // Agregar días a la cola, pila, grafo y árbol (puedes modificar según tus necesidades)
-for (int i = 1; i <= 5; ++i) {
-        Dia* nuevoDia = crearDia(i);
-        printf("Ingrese las actividades para el día %d (Ingrese '1' para continuar, o cualquier caracter para salir):\n", i);
-        scanf("%d", &decision);
-    
-    if (decision = 1){
-        while (1) {
-            printf("Actividad %d (Nombre y valor de prioridad): ", nuevoDia->cantidadActividades + 1);
-            scanf("%s %d", actividadNombre, &nuevaActividad.valor);
+    printf("Bienvenido. Ingrese cualquier caracter para continuar. Ingrese '0' para finalizar el programa:\n");
+    scanf("%d", &decision);
 
-            if (strcmp(actividadNombre, "fin") == 0) {
-                break;
-            }
+    if (decision != 0) {
+        int actividadActual = 1;
 
-            Actividad nuevaActividad;
-            strcpy(nuevaActividad.nombre, actividadNombre);
+        // Agregar días a la cola, pila, grafo y árbol
 
-            agregarActividad(nuevoDia, nuevaActividad);
+    for (int i = 1; i <= 5; ++i) {
+    Dia* nuevoDia = crearDia(i);
+
+    printf("Ingrese las actividades del día '%d'. Ingrese 'fin' para salir:\n", i);
+    int actividadActual = 1;
+
+    while (actividadActual <= 5) {
+        printf("Actividad %d: ", actividadActual);
+        scanf("%s", actividadNombre);
+
+        if (strcmp(actividadNombre, "fin") == 0) {
+            break;
         }
-        // Operaciones con la cola
-        encolar(cola, nuevoDia);
 
-        // Operaciones con la pila
-        apilar(pila, nuevoDia);
+        printf("Valor de prioridad: ");
+        scanf("%d", &nuevaActividad.valor);
 
-        // Operaciones con el grafo
-        agregarDiaGrafo(grafo, nuevoDia);
+        Actividad nuevaActividad;
+        strcpy(nuevaActividad.nombre, actividadNombre);
 
-        // Operaciones con el árbol
-        arbol->raiz = insertarActividadArbol(arbol->raiz, nuevoDia->actividades[0]);
-
-    // Ejemplo de desencolar y desapilar
-    Dia* diaDesencolado = desencolar(cola);
-    Dia* diaDesapilado = desapilar(pila);
-
+        agregarActividad(nuevoDia, nuevaActividad);
+        actividadActual++;
+    }
+    
     // Ejemplo de recorrer el grafo
-    NodoGrafo* nodoActual = grafo->inicio;
-    while (nodoActual != NULL) {
-        printf("Día %d\n", nodoActual->dia->numero);
-        nodoActual = nodoActual->siguiente;
+NodoGrafo* nodoActual = grafo->inicio;
+while (nodoActual != NULL) {
+    printf("Día %d\n", nodoActual->dia->numero);
+
+    // Ejemplo de recorrer las actividades del día
+    for (int j = 0; j < nodoActual->dia->cantidadActividades; ++j) {
+        printf("- %s\n", nodoActual->dia->actividades[j].nombre);
     }
 
-    // Ejemplo de recorrer el árbol (en orden)
-    printf("Actividades en orden:\n");
-    imprimirArbolEnOrden(arbol->raiz);
+    nodoActual = nodoActual->siguiente;
+}
+
+// Calcular y mostrar el orden recomendado
+calcularOrdenRecomendado(grafo);
+        printf("Actividades en orden recomendado:\n");
+
+        // Ejemplo de recorrer la cola después de ordenar
+        Dia* diaOrdenado = desencolar(cola);
+        while (diaOrdenado != NULL) {
+            printf("Día %d\n", diaOrdenado->numero);
+
+            // Ejemplo de recorrer las actividades del día después de ordenar
+            for (int j = 0; j < diaOrdenado->cantidadActividades; ++j) {
+                printf("- %s\n", diaOrdenado->actividades[j].nombre);
+            }
+
+            diaOrdenado = desencolar(cola);
+        }
+
+    // Operaciones con la cola
+    encolar(cola, nuevoDia);
+
+    // Operaciones con la pila
+    apilar(pila, nuevoDia);
+
+    // Operaciones con el grafo
+    agregarDiaGrafo(grafo, nuevoDia);
+
+    // Operaciones con el árbol
+    arbol->raiz = insertarActividadArbol(arbol->raiz, nuevoDia->actividades[0]);
     
-}else{
+    }
 
-    printf("Hasta luego :)");
-
-    return 0;
+    } else {
+        printf("Hasta luego :)\n");
+        return 0;
+    }
 }
-
-}
-
-}
-
