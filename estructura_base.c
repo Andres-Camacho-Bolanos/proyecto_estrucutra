@@ -1,387 +1,285 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
+// Estructura para representar una actividad
 typedef struct Actividad {
-    int id;
-    char nombre[100];
-    int prioridad;
+    char nombre[50];
+    int valor;
+    // Puedes agregar más detalles según sea necesario
 } Actividad;
 
-typedef struct Node {
-    Actividad dato;
-    struct Node* next;
-    struct Node* prev;
-} Node;
+// Estructura para representar un día
+typedef struct Dia {
+    int numero;
+    Actividad actividades[5]; // Lista de hasta 5 actividades por día
+    int cantidadActividades;  // Número actual de actividades en el día
+    struct Dia* siguiente;
+} Dia;
 
-typedef struct Grafo {
-    int numNodos;
-    int** matrizAdyacencia;
-} Grafo;
-
-typedef struct Alarma {
-    Actividad actividad;
-    // Add other fields related to the alarm if needed
-} Alarma;
-
-typedef struct Pila {
-    Node* top;
-    int capacidad;
-    int tamano;
-} Pila;
-
+// Implementación de una cola (FIFO)
 typedef struct Cola {
-    Alarma* elementos;
-    int frente, fin;
-    int capacidad;
+    Dia* frente;
+    Dia* final;
 } Cola;
 
-typedef struct TreeNode {
-    int hora;
-    Node* actividades;
-    struct TreeNode* izquierda;
-    struct TreeNode* derecha;
-} TreeNode;
+// Implementación de una pila (LIFO)
+typedef struct Pila {
+    Dia* tope;
+} Pila;
 
-// Function declarations
-Cola* inicializarCola(int capacidad);
-int estaVacia(Cola* cola);
-void eliminarAlarma(Cola* cola);
-void pop(Pila* pila);
-void aumentarHora(int* hora);
-Node* agregarActividad(Node* head, Actividad actividad);
-void sistemaAlarma(Cola* colaAlarmas, Actividad actividad);
-Node* agregarActividad(Node* head, Actividad actividad);
-Grafo* crearGrafo(Actividad actividades[], int numActividades);
-void topologicalSortUtil(Grafo* grafo, int v, int visitado[], Node* actividades[], int* index);
-Node** topologicalSort(Grafo* grafo, Node* actividades[], int numActividades);
-TreeNode* relojCuentafinal(TreeNode* arbolHoras, Actividad actividad, int hora);
-void agregarActividadProgramada(TreeNode* nodo, Actividad actividad);
+// Funciones para operar con colas
+Cola* crearCola() {
+    Cola* nuevaCola = (Cola*)malloc(sizeof(Cola));
+    nuevaCola->frente = nuevaCola->final = NULL;
+    return nuevaCola;
+}
+
+void encolar(Cola* cola, Dia* nuevoDia) {
+    if (cola->final == NULL) {
+        cola->frente = cola->final = nuevoDia;
+        return;
+    }
+
+    cola->final->siguiente = nuevoDia;
+    cola->final = nuevoDia;
+}
+
+Dia* desencolar(Cola* cola) {
+    if (cola->frente == NULL) {
+        return NULL;
+    }
+
+    Dia* temp = cola->frente;
+    cola->frente = cola->frente->siguiente;
+
+    if (cola->frente == NULL) {
+        cola->final = NULL;
+    }
+
+    return temp;
+}
+
+// Funciones para operar con pilas
+Pila* crearPila() {
+    Pila* nuevaPila = (Pila*)malloc(sizeof(Pila));
+    nuevaPila->tope = NULL;
+    return nuevaPila;
+}
+
+void apilar(Pila* pila, Dia* nuevoDia) {
+    nuevoDia->siguiente = pila->tope;
+    pila->tope = nuevoDia;
+}
+
+Dia* desapilar(Pila* pila) {
+    if (pila->tope == NULL) {
+        return NULL;
+    }
+
+    Dia* temp = pila->tope;
+    pila->tope = pila->tope->siguiente;
+
+    return temp;
+}
+// Funciones para operar con listas enlazadas
+Dia* crearDia(int numero) {
+    Dia* nuevoDia = (Dia*)malloc(sizeof(Dia));
+    nuevoDia->numero = numero; // Corregir aquí
+    nuevoDia->siguiente = NULL;
+    nuevoDia->cantidadActividades = 0; // Inicializar la cantidad de actividades
+    return nuevoDia;
+}
+
+void agregarActividad(Dia* dia, Actividad nuevaActividad) {
+    if (dia->cantidadActividades < 5) { // Asegurarse de que no exceda el límite de 5 actividades
+        dia->actividades[dia->cantidadActividades] = nuevaActividad;
+        dia->cantidadActividades++;
+    } else {
+        printf("¡Límite de actividades alcanzado para el día %d!\n", dia->numero);
+    }
+}
+// Estructura para representar un nodo en el grafo
+typedef struct NodoGrafo {
+    Dia* dia;
+    struct NodoGrafo* siguiente;
+} NodoGrafo;
+
+// Estructura para representar un grafo
+typedef struct Grafo {
+    NodoGrafo* inicio;
+} Grafo;
+
+// Funciones para operar con grafos
+Grafo* crearGrafo() {
+    Grafo* nuevoGrafo = (Grafo*)malloc(sizeof(Grafo));
+    nuevoGrafo->inicio = NULL;
+    return nuevoGrafo;
+}
+
+void agregarDiaGrafo(Grafo* grafo, Dia* nuevoDia) {
+    NodoGrafo* nuevoNodo = (NodoGrafo*)malloc(sizeof(NodoGrafo));
+    nuevoNodo->dia = nuevoDia;
+    nuevoNodo->siguiente = grafo->inicio;
+    grafo->inicio = nuevoNodo;
+}
+// Estructura para representar un nodo en el árbol
+typedef struct NodoArbol {
+    Actividad actividad;
+    struct NodoArbol* izquierda;
+    struct NodoArbol* derecha;
+} NodoArbol;
+
+// Estructura para representar un árbol
+typedef struct Arbol {
+    NodoArbol* raiz;
+} Arbol;
+
+// Funciones para operar con árboles
+Arbol* crearArbol() {
+    Arbol* nuevoArbol = (Arbol*)malloc(sizeof(Arbol));
+    nuevoArbol->raiz = NULL;
+    return nuevoArbol;
+}
+
+NodoArbol* insertarActividadArbol(NodoArbol* raiz, Actividad nuevaActividad) {
+    if (raiz == NULL) {
+        NodoArbol* nuevoNodo = (NodoArbol*)malloc(sizeof(NodoArbol));
+        nuevoNodo->actividad = nuevaActividad;
+        nuevoNodo->izquierda = nuevoNodo->derecha = NULL;
+        return nuevoNodo;
+    }
+
+    if (strcmp(nuevaActividad.nombre, raiz->actividad.nombre) < 0) {
+        raiz->izquierda = insertarActividadArbol(raiz->izquierda, nuevaActividad);
+    } else {
+        raiz->derecha = insertarActividadArbol(raiz->derecha, nuevaActividad);
+    }
+
+    return raiz;
+}
+
+void imprimirActividadesDia(Dia* dia) {
+    printf("Actividades para el día %d:\n", dia->numero);
+    for (int i = 0; i < dia->cantidadActividades; ++i) {
+        printf("- %s\n", dia->actividades[i].nombre);
+    }
+}
+
+void intercambiar(NodoGrafo* a, NodoGrafo* b) {
+    Dia* temp = a->dia;
+    a->dia = b->dia;
+    b->dia = temp;
+}
+
+void calcularOrdenRecomendado(Grafo* grafo) {
+    NodoGrafo* nodoActual;
+    NodoGrafo* siguienteNodo;
+    int cambiado;
+
+    if (grafo == NULL || grafo->inicio == NULL) {
+        return;
+    }
+
+    do {
+        cambiado = 0;
+        nodoActual = grafo->inicio;
+
+        while (nodoActual->siguiente != NULL) {
+            siguienteNodo = nodoActual->siguiente;
+
+            // Comparar valores de las actividades
+            if (nodoActual->dia->actividades[0].valor < siguienteNodo->dia->actividades[0].valor) {
+                intercambiar(nodoActual, siguienteNodo);
+                cambiado = 1;
+            }
+
+            nodoActual = siguienteNodo;
+        }
+    } while (cambiado);
+}
+
+void imprimirArbolEnOrden(NodoArbol* raiz) {
+    if (raiz != NULL) {
+        imprimirArbolEnOrden(raiz->izquierda);
+        printf("%s\n", raiz->actividad.nombre);
+        imprimirArbolEnOrden(raiz->derecha);
+    }
+}
 
 int main() {
-    Node* head = NULL;
-    int numActividades = 8;
-    int hora = 0;
-    int segundosTranscurridos = 0;
+    
+     char actividadNombre[50];
+     Actividad nuevaActividad; 
+     int decision;
+     
+    // Crear una cola
+    Cola* cola = crearCola();
 
-    Actividad actividades[] = {
-        {1, "Bañarse", 3},
-        {2, "Gimnasio", 4},
-        {3, "Comprar alimentos", 2},
-        {4, "Pasear a tu mascota", 3},
-        {5, "Trabajo", 5},
-        {6, "Proyectos personales", 4},
-        {7, "Tiempo con pareja", 5},
-        {8, "Tiempo recreativo", 3}
-    };
+    // Crear una pila
+    Pila* pila = crearPila();
 
-    Cola* colaAlarmas = inicializarCola(10);
-    Pila* pilaMarcadores = inicializarPila(10);  // Fixed this line
-    TreeNode* arbolHoras = NULL;
+    // Crear un grafo
+    Grafo* grafo = crearGrafo();
 
-    srand(time(NULL));
+    // Crear un árbol
+    Arbol* arbol = crearArbol();
 
-    while (1) {
-        segundosTranscurridos += 10;
-        if (segundosTranscurridos >= 3600) {
-            segundosTranscurridos = 0;
-            aumentarHora(&hora);
+    // Agregar días a la cola, pila, grafo y árbol (puedes modificar según tus necesidades)
+for (int i = 1; i <= 5; ++i) {
+        Dia* nuevoDia = crearDia(i);
+        printf("Ingrese las actividades para el día %d (Ingrese '1' para continuar, o cualquier caracter para salir):\n", i);
+        scanf("%d", &decision);
+    
+    if (decision = 1){
+        while (1) {
+            printf("Actividad %d (Nombre y valor de prioridad): ", nuevoDia->cantidadActividades + 1);
+            scanf("%s %d", actividadNombre, &nuevaActividad.valor);
 
-            if (hora == 0) {
-                while (!estaVacia(colaAlarmas)) {
-                    eliminarAlarma(colaAlarmas);
-                }
-
-                while (!estaVacia(pilaMarcadores)) {
-                    pop(pilaMarcadores);
-                }
+            if (strcmp(actividadNombre, "fin") == 0) {
+                break;
             }
-        }
 
-        if (rand() % 10 == 0) {
-            Actividad actividad;
-            actividad.id = rand() % 1000;
-            sprintf(actividad.nombre, "Actividad %d", actividad.id);
-            actividad.prioridad = rand() % 5 + 1;
+            Actividad nuevaActividad;
+            strcpy(nuevaActividad.nombre, actividadNombre);
 
-            arbolHoras = relojCuentafinal(arbolHoras, actividad, hora);
+            agregarActividad(nuevoDia, nuevaActividad);
         }
+        // Operaciones con la cola
+        encolar(cola, nuevoDia);
+
+        // Operaciones con la pila
+        apilar(pila, nuevoDia);
+
+        // Operaciones con el grafo
+        agregarDiaGrafo(grafo, nuevoDia);
+
+        // Operaciones con el árbol
+        arbol->raiz = insertarActividadArbol(arbol->raiz, nuevoDia->actividades[0]);
+
+    // Ejemplo de desencolar y desapilar
+    Dia* diaDesencolado = desencolar(cola);
+    Dia* diaDesapilado = desapilar(pila);
+
+    // Ejemplo de recorrer el grafo
+    NodoGrafo* nodoActual = grafo->inicio;
+    while (nodoActual != NULL) {
+        printf("Día %d\n", nodoActual->dia->numero);
+        nodoActual = nodoActual->siguiente;
     }
+
+    // Ejemplo de recorrer el árbol (en orden)
+    printf("Actividades en orden:\n");
+    imprimirArbolEnOrden(arbol->raiz);
+    
+}else{
+
+    printf("Hasta luego :)");
 
     return 0;
 }
 
-
-Cola* inicializarCola(int capacidad) {
-    Cola* cola = (Cola*)malloc(sizeof(Cola));
-    cola->capacidad = capacidad;
-    cola->elementos = (Alarma*)malloc(sizeof(Alarma) * capacidad);
-    cola->frente = cola->fin = -1;
-    return cola;
 }
 
-int estaVacia(Cola* cola) {
-    return cola->frente == -1;
 }
 
-int estaLlena(Cola* cola) {
-    return (cola->fin + 1) % cola->capacidad == cola->frente;
-}
-
-void agregarAlarma(Cola* cola, Alarma alarma) {
-    if (estaLlena(cola)) {
-        printf("La cola de alarmas está llena. No se puede agregar más alarmas.\n");
-        return;
-    }
-
-    if (estaVacia(cola)) {
-        cola->frente = 0;
-    }
-
-    cola->fin = (cola->fin + 1) % cola->capacidad;
-    cola->elementos[cola->fin] = alarma;
-}
-
-void eliminarAlarma(Cola* cola) {
-    if (estaVacia(cola)) {
-        printf("No hay alarmas para eliminar.\n");
-        return;
-    }
-
-    if (cola->frente == cola->fin) {
-        cola->frente = cola->fin = -1;
-    } else {
-        cola->frente = (cola->frente + 1) % cola->capacidad;
-    }
-}
-
-void pop(Pila* pila) {
-    if (estaVacia(pila)) {
-        printf("La pila de marcadores está vacía.\n");
-        return;
-    }
-
-    Node* temp = pila->top;
-    pila->top = pila->top->next;
-    free(temp);
-    pila->tamano--;
-}
-
-Node* agregarActividad(Node* head, Actividad actividad) {
-    Node* newNode = (Node*)malloc(sizeof(Node));
-    newNode->dato = actividad;
-
-    if (head == NULL) {
-        newNode->next = newNode;
-        newNode->prev = newNode;
-        return newNode;
-    }
-
-    Node* last = head->prev;
-
-    newNode->next = head;
-    head->prev = newNode;
-
-    newNode->prev = last;
-    last->next = newNode;
-
-    return head;
-}
-
-// Función para añadir una alarma a las actividades por realizar
-void sistemaAlarma(Cola* colaAlarmas, Actividad actividad) {
-// Inicializar una cola
-Cola* inicializarCola(int capacidad) {
-    Cola* cola = (Cola*)malloc(sizeof(Cola));
-    cola->capacidad = capacidad;
-    cola->elementos = (Alarma*)malloc(sizeof(Alarma) * capacidad);
-    cola->frente = cola->fin = -1;
-    return cola;
-}
-
-// Verificar si la cola está vacía
-int estaVacia(Cola* cola) {
-    return cola->frente == -1;
-}
-
-// Verificar si la cola está llena
-int estaLlena(Cola* cola) {
-    return (cola->fin + 1) % cola->capacidad == cola->frente;
-}
-
-// Agregar una alarma a la cola
-void agregarAlarma(Cola* cola, Alarma alarma) {
-    if (estaLlena(cola)) {
-        printf("La cola de alarmas está llena. No se puede agregar más alarmas.\n");
-        return;
-    }
-
-    if (estaVacia(cola)) {
-        cola->frente = 0;
-    }
-
-    cola->fin = (cola->fin + 1) % cola->capacidad;
-    cola->elementos[cola->fin] = alarma;
-}
-
-// Eliminar una alarma de la cola (cuando se dispara)
-void eliminarAlarma(Cola* cola) {
-    if (estaVacia(cola)) {
-        printf("No hay alarmas para eliminar.\n");
-        return;
-    }
-
-    if (cola->frente == cola->fin) {
-        cola->frente = cola->fin = -1;
-    } else {
-        cola->frente = (cola->frente + 1) % cola->capacidad;
-    }
-}
-
-// Mostrar las alarmas en la cola
-void mostrarAlarmas(Cola* cola) {
-    if (estaVacia(cola)) {
-        printf("La cola de alarmas está vacía.\n");
-        return;
-    }
-
-    int i = cola->frente;
-    printf("Alarmas programadas:\n");
-    while (i != cola->fin) {
-        printf("Actividad: %s\n", cola->elementos[i].actividad.nombre);
-        i = (i + 1) % cola->capacidad;
-    }
-    printf("Actividad: %s\n", cola->elementos[cola->fin].actividad.nombre);
-}
-}
-
-// Función para aladir un marcador a las actividades seleccionadas
-void marcadorActividad(Pila* pilaMarcadores, Actividad actividad) {
-// Inicializar una pila
-Pila* inicializarPila(int capacidad) {
-    Pila* pila = (Pila*)malloc(sizeof(Pila));
-    pila->top = NULL;
-    pila->capacidad = capacidad;
-    pila->tamano = 0;
-    return pila;
-}
-
-// Verificar si la pila está vacía
-int estaVacia(Pila* pila) {
-    return pila->top == NULL;
-}
-
-// Agregar un elemento (actividad marcada) a la pila
-void push(Pila* pila, Actividad actividad) {
-    if (pila->tamano >= pila->capacidad) {
-        printf("La pila de marcadores está llena. No se pueden agregar más marcadores.\n");
-        return;
-    }
-
-    Node* newNode = (Node*)malloc(sizeof(Node));
-    newNode->dato = actividad;
-    newNode->next = pila->top;
-    pila->top = newNode;
-    pila->tamano++;
-}
-
-// Obtener y eliminar el elemento superior de la pila
-Actividad pop(Pila* pila) {
-    if (estaVacia(pila)) {
-        printf("La pila de marcadores está vacía.\n");
-        Actividad actividadVacia;
-        actividadVacia.id = -1;
-        return actividadVacia;
-    }
-
-    Node* temp = pila->top;
-    Actividad actividadMarcada = temp->dato;
-    pila->top = pila->top->next;
-    free(temp);
-    pila->tamano--;
-
-    return actividadMarcada;
-}
-
-Node** prioridadGrafos(Actividad actividades[], int numActividades) {
-    Grafo* crearGrafo(Actividad actividades[], int numActividades) {
-    Grafo* grafo = (Grafo*)malloc(sizeof(Grafo));
-    grafo->numNodos = numActividades;
-    grafo->matrizAdyacencia = (int**)malloc(numActividades * sizeof(int*));
-
-    for (int i = 0; i < numActividades; i++) {
-        grafo->matrizAdyacencia[i] = (int*)malloc(numActividades * sizeof(int));
-
-        for (int j = 0; j < numActividades; j++) {
-            if (i == j) {
-                grafo->matrizAdyacencia[i][j] = 0;
-            } else if (actividades[i].prioridad > actividades[j].prioridad) {
-                grafo->matrizAdyacencia[i][j] = 1;
-            } else {
-                grafo->matrizAdyacencia[i][j] = 0;
-            }
-        }
-    }
-
-    return grafo;
-}
-
-// Función para realizar una búsqueda topológica en el grafo
-void topologicalSortUtil(Grafo* grafo, int v, int visitado[], Node* actividades[], int* index) {
-    visitado[v] = 1;
-    for (int i = 0; i < grafo->numNodos; i++) {
-        if (grafo->matrizAdyacencia[v][i] && !visitado[i]) {
-            topologicalSortUtil(grafo, i, visitado, actividades, index);
-        }
-    }
-    actividades[(*index)++] = agregarActividad(NULL, actividades[v]->dato);
-}
-
-// Función que llama a la búsqueda topológica
-Node** topologicalSort(Grafo* grafo, Node* actividades[], int numActividades) {
-    int* visitado = (int*)malloc(numActividades * sizeof(int));
-    int index = 0;
-    Node** ordenRecomendado = (Node**)malloc(numActividades * sizeof(Node*));
-
-    for (int i = 0; i < numActividades; i++) {
-        visitado[i] = 0;
-    }
-
-    for (int i = 0; i < numActividades; i++) {
-        if (!visitado[i]) {
-            topologicalSortUtil(grafo, i, visitado, actividades, &index);
-        }
-    }
-
-    return NULL;
-}
-}
-
-// Función para programar actividades en un árbol de horas
-TreeNode* relojCuentafinal(TreeNode* arbolHoras, Actividad actividad, int hora)  {
-    TreeNode* nodo = (TreeNode*)malloc(sizeof(TreeNode));
-    nodo->hora = hora;
-    nodo->actividades = NULL;
-    nodo->izquierda = NULL;
-    nodo->derecha = NULL;
-    
-    return arbolHoras; 
-}
-
-// Agregar una actividad programada a un nodo de árbol
-void agregarActividadProgramada(TreeNode* nodo, Actividad actividad) {
-    Node* newNode = (Node*)malloc(sizeof(Node));
-    newNode->dato = actividad;
-    newNode->next = nodo->actividades;
-    nodo->actividades = newNode;
-}
-
-// Función para aumentar una hora en el reloj
-void aumentarHora(int* hora) {
-    (*hora)++;
-    if (*hora > 23) {
-        *hora = 0;
-    }
-}
-}
