@@ -289,3 +289,9 @@ int main() {
 
     return 0;
 }
+
+
+
+
+////// Utilizar el algoritmo de dijkstra para calcular el día más desocupado
+//// Utilizar el arbol binario para búsqueda de actividades específicas que ingresó el usuario
