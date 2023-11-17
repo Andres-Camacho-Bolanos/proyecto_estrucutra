@@ -16,6 +16,12 @@ typedef struct Dia {
     struct Dia* siguiente;
 } Dia;
 
+// Estructura para representar un grafo
+typedef struct Grafo {
+    Dia* nodos[5];
+    int matrizAdyacencia[5][5];
+} Grafo;
+
 // Implementación de una cola (FIFO)
 typedef struct Cola {
     Dia* frente;
@@ -124,6 +130,70 @@ void ordSeleccion(Actividad actividades[], int n) {
     }
 }
 
+Grafo* crearGrafo() {
+    Grafo* nuevoGrafo = (Grafo*)malloc(sizeof(Grafo));
+    for (int i = 0; i < 5; i++) {
+        nuevoGrafo->nodos[i] = NULL;
+        for (int j = 0; j < 5; j++) {
+            nuevoGrafo->matrizAdyacencia[i][j] = 0;
+        }
+    }
+    return nuevoGrafo;
+}
+
+void agregarRelacion(Grafo* grafo, Dia* dia1, Dia* dia2) {
+    // Agregar relación bidireccional entre los días
+    int indiceDia1 = dia1->numero - 1;
+    int indiceDia2 = dia2->numero - 1;
+    grafo->matrizAdyacencia[indiceDia1][indiceDia2] = 1;
+    grafo->matrizAdyacencia[indiceDia2][indiceDia1] = 1;
+}
+
+// Algoritmo de Dijkstra para encontrar el día más desocupado
+int dijkstra(Grafo* grafo, int inicio) {
+    int distancia[5];
+    int visitado[5] = {0};  // Inicializar todos los nodos como no visitados
+    int minDistancia, siguienteNodo;
+
+    // Inicializar distancias desde el nodo inicial
+    for (int i = 0; i < 5; i++) {
+        distancia[i] = grafo->matrizAdyacencia[inicio][i];
+    }
+
+    visitado[inicio] = 1;  // Marcar el nodo inicial como visitado
+
+    for (int i = 1; i < 5; i++) {
+        minDistancia = 9999;  // Un valor grande que represente infinito
+        // Encontrar el nodo no visitado con la distancia mínima
+        for (int j = 0; j < 5; j++) {
+            if (!visitado[j] && distancia[j] < minDistancia) {
+                minDistancia = distancia[j];
+                siguienteNodo = j;
+            }
+        }
+
+        visitado[siguienteNodo] = 1;  // Marcar el nodo como visitado
+
+        // Actualizar las distancias a través del nodo recién visitado
+        for (int j = 0; j < 5; j++) {
+            if (!visitado[j] && (minDistancia + grafo->matrizAdyacencia[siguienteNodo][j]) < distancia[j]) {
+                distancia[j] = minDistancia + grafo->matrizAdyacencia[siguienteNodo][j];
+            }
+        }
+    }
+
+    // Encontrar el nodo con la máxima distancia, que representará el día más desocupado
+    int maxDistancia = 0;
+    int diaMasDesocupado = 0;
+    for (int i = 0; i < 5; i++) {
+        if (distancia[i] > maxDistancia) {
+            maxDistancia = distancia[i];
+            diaMasDesocupado = i;
+        }
+    }
+
+    return diaMasDesocupado + 1;  // Sumar 1 para obtener el número de día
+}
 int main() {
     char actividadNombre[50];
     Actividad nuevaActividad;
@@ -139,13 +209,18 @@ int main() {
     printf("Bienvenido. Ingrese cualquier número para continuar.\nIngrese '0' o cualquier otro caracter para finalizar el programa:\n");
     scanf("%d", &decision);
 
+    
     if (decision != 0) {
         int actividadActual = 1;
 
+        // Crear un grafo
+        Grafo* grafo = crearGrafo();
+
         // Agregar días a la cola, pila, grafo y árbol
+        Dia* nuevoDia;
 
         for (int i = 1; i <= 5; ++i) {
-            Dia* nuevoDia = crearDia(i);
+            nuevoDia = crearDia(i);
 
             printf("Ingrese las actividades del día '%d'. Ingrese 'fin' para salir:\n", i);
 
@@ -167,14 +242,17 @@ int main() {
 
                 agregarActividad(nuevoDia, nuevaActividad);
                 actividadActual++;
-                }
-
+            }
 
             // Operaciones con la cola
             encolar(cola, nuevoDia);
 
             // Operaciones con la pila
             apilar(pila, nuevoDia);
+
+            // Agregar día al grafo
+            grafo->nodos[i - 1] = nuevoDia;
+        }
 
         // Calcular y mostrar el orden recomendado
         double valores[5];
@@ -196,18 +274,17 @@ int main() {
                 diaActual = diaActual->siguiente;
             }
         }
-    } 
-    
-        
-  } else {
-        printf("Hasta luego :)\n");
-        
-  }
-       return 0; 
- 
-    
-}
-  
 
-////// Utilizar el algoritmo de dijkstra para calcular el día más desocupado
-//// Utilizar el arbol binario para búsqueda de actividades específicas que ingresó el usuario
+        // Establecer relaciones entre días 
+        agregarRelacion(grafo, grafo->nodos[0], grafo->nodos[1]);
+        agregarRelacion(grafo, grafo->nodos[0], grafo->nodos[3]);
+
+        // Calcular el día más desocupado utilizando Dijkstra
+        int diaMasDesocupado = dijkstra(grafo, 0);
+        printf("El día más desocupado es: %d\n", diaMasDesocupado);
+    } else {
+        printf("Hasta luego :)\n");
+    }
+
+    return 0;
+}
