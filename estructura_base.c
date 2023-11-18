@@ -33,6 +33,12 @@ typedef struct Pila {
     Dia* tope;
 } Pila;
 
+typedef struct Nodo {
+    Actividad actividad;
+    struct Nodo* izquierdo;
+    struct Nodo* derecho;
+} Nodo;
+
 // Funciones para operar con colas
 Cola* crearCola() {
     Cola* nuevaCola = (Cola*)malloc(sizeof(Cola));
@@ -149,6 +155,61 @@ void agregarRelacion(Grafo* grafo, Dia* dia1, Dia* dia2) {
     grafo->matrizAdyacencia[indiceDia2][indiceDia1] = 1;
 }
 
+Nodo* insertar(Nodo* nodo, Actividad actividad) {
+    // Si el árbol está vacío, asignar un nuevo nodo dirección
+    if (nodo == NULL) {
+        Nodo* nodo = (Nodo*)malloc(sizeof(Nodo));
+        nodo->actividad = actividad;
+        nodo->izquierdo = nodo->derecho = NULL;
+        return nodo;
+    }
+
+    // Si el árbol no está vacío, descender por el árbol
+    if (actividad.valor < nodo->actividad.valor)
+        nodo->izquierdo  = insertar(nodo->izquierdo, actividad);
+    else if (actividad.valor > nodo->actividad.valor)
+        nodo->derecho = insertar(nodo->derecho, actividad);   
+
+    return nodo;
+}
+
+Nodo* buscar(Nodo* raiz, char* nombre) {
+    // Base Cases: la raíz es nula o la clave está presente en la raíz
+    if (raiz == NULL || strcmp(raiz->actividad.nombre, nombre) == 0)
+       return raiz;
+
+    // La clave es mayor que la raíz
+    if (strcmp(raiz->actividad.nombre, nombre) < 0)
+       return buscar(raiz->derecho, nombre);
+
+    // La clave es menor que la raíz
+    return buscar(raiz->izquierdo, nombre);
+}
+
+// Función para realizar búsqueda binaria en un arreglo de actividades
+int busquedaBinaria(Actividad actividades[], int n, char* nombre) {
+    int izquierda = 0, derecha = n - 1;
+    while (izquierda <= derecha) {
+        int medio = izquierda + (derecha - izquierda) / 2;
+        int comparacion = strcmp(actividades[medio].nombre, nombre);
+
+        // Si se encuentra la actividad
+        if (comparacion == 0) {
+            return medio;
+        }
+        // Si la actividad está en la mitad derecha
+        else if (comparacion < 0) {
+            izquierda = medio + 1;
+        }
+        // Si la actividad está en la mitad izquierda
+        else {
+            derecha = medio - 1;
+        }
+    }
+    // Si la actividad no se encuentra
+    return -1;
+}
+
 // Algoritmo de Dijkstra para encontrar el día más desocupado
 int dijkstra(Grafo* grafo, int inicio) {
     int distancia[5];
@@ -254,7 +315,7 @@ int main() {
             grafo->nodos[i - 1] = nuevoDia;
         }
 
-        // Calcular y mostrar el orden recomendado
+// Calcular y mostrar el orden recomendado
         double valores[5];
         Dia* diaActual = cola->frente;
         for (int i = 0; i < 5 && diaActual != NULL; i++) {
@@ -275,13 +336,35 @@ int main() {
             }
         }
 
-        // Establecer relaciones entre días 
+        // Búsqueda binaria
+        char actividadBuscada[50];
+        printf("\nIngrese el nombre de la actividad que desea buscar: ");
+        scanf("%s", actividadBuscada);
+
+        // Buscar la actividad en los días
+        diaActual = cola->frente;
+        int encontrado = 0;
+        while (diaActual != NULL) {
+            int indice = busquedaBinaria(diaActual->actividades, diaActual->cantidadActividades, actividadBuscada);
+            if (indice != -1) {
+                printf("La actividad '%s' fue encontrada en el día %d.\n", actividadBuscada, diaActual->numero);
+                encontrado = 1;
+                break;
+            }
+            diaActual = diaActual->siguiente;
+        }
+
+        if (!encontrado) {
+            printf("La actividad '%s' no fue encontrada en ningún día.\n", actividadBuscada);
+        }
+
+        // Establecer relaciones entre días
         agregarRelacion(grafo, grafo->nodos[0], grafo->nodos[1]);
         agregarRelacion(grafo, grafo->nodos[0], grafo->nodos[3]);
 
         // Calcular el día más desocupado utilizando Dijkstra
         int diaMasDesocupado = dijkstra(grafo, 0);
-        printf("El día más desocupado es: %d\n", diaMasDesocupado);
+        printf("\nEl día más desocupado es: %d\n", diaMasDesocupado);
     } else {
         printf("Hasta luego :)\n");
     }
