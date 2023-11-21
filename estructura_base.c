@@ -345,17 +345,20 @@ int main() {
         diaActual = cola->frente;
         int encontrado = 0;
         while (diaActual != NULL) {
-            int indice = busquedaBinaria(diaActual->actividades, diaActual->cantidadActividades, actividadBuscada);
+        int indice = busquedaBinaria(diaActual->actividades, diaActual->cantidadActividades, actividadBuscada);
             if (indice != -1) {
-                printf("La actividad '%s' fue encontrada en el día %d.\n", actividadBuscada, diaActual->numero);
-                encontrado = 1;
-                break;
+            printf("La actividad '%s' fue encontrada en el día %d.\n", actividadBuscada, diaActual->numero);
+            encontrado = 1;
+            // Don't break here, continue searching in other days
             }
+            
             diaActual = diaActual->siguiente;
-        }
+            
+            }
 
+        // Add this after the loop to print a message if the activity was not found in any day
         if (!encontrado) {
-            printf("La actividad '%s' no fue encontrada en ningún día.\n", actividadBuscada);
+        printf("La actividad '%s' no fue encontrada en ningún día.\n", actividadBuscada);
         }
 
         // Establecer relaciones entre días
