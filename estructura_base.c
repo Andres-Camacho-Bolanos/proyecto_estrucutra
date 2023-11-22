@@ -118,20 +118,31 @@ void imprimirActividadesDia(Dia* dia) {
     }
 }
 
+// Función de comparación para la ordenación por selección
+int compararValores(const void* a, const void* b) {
+    return (*(double*)b - *(double*)a);
+}
 
-void ordSeleccion(Actividad actividades[], int n) {
-    int indiceMayor, i, j;
-    for (i = 0; i < n - 1; i++) {
-        indiceMayor = i;
-        for (j = i + 1; j < n; j++) {
-            if (actividades[j].valor > actividades[indiceMayor].valor) {
-                indiceMayor = j;
+// Función para ordenar días según sus valores
+void ordenarDias(Cola* cola, int diasOrdenados[]) {
+    double valores[5];
+    Dia* diaActual = cola->frente;
+    
+    for (int i = 0; i < 5 && diaActual != NULL; i++) {
+        valores[i] = diaActual->actividades[0].valor;
+        diaActual = diaActual->siguiente;
+    }
+
+    qsort(valores, 5, sizeof(double), compararValores);
+
+    for (int i = 0; i < 5; i++) {
+        Dia* diaActual = cola->frente;
+        while (diaActual != NULL) {
+            if (diaActual->actividades[0].valor == valores[i]) {
+                diasOrdenados[i] = diaActual->numero;
+                break;
             }
-        }
-        if (i != indiceMayor) {
-            Actividad aux = actividades[i];
-            actividades[i] = actividades[indiceMayor];
-            actividades[indiceMayor] = aux;
+            diaActual = diaActual->siguiente;
         }
     }
 }
@@ -158,17 +169,17 @@ void agregarRelacion(Grafo* grafo, Dia* dia1, Dia* dia2) {
 Nodo* insertar(Nodo* nodo, Actividad actividad) {
     // Si el árbol está vacío, asignar un nuevo nodo dirección
     if (nodo == NULL) {
-        Nodo* nodo = (Nodo*)malloc(sizeof(Nodo));
-        nodo->actividad = actividad;
-        nodo->izquierdo = nodo->derecho = NULL;
-        return nodo;
+        Nodo* nuevoNodo = (Nodo*)malloc(sizeof(Nodo));
+        nuevoNodo->actividad = actividad;
+        nuevoNodo->izquierdo = nuevoNodo->derecho = NULL;
+        return nuevoNodo;
     }
 
     // Si el árbol no está vacío, descender por el árbol
     if (actividad.valor < nodo->actividad.valor)
         nodo->izquierdo  = insertar(nodo->izquierdo, actividad);
     else if (actividad.valor > nodo->actividad.valor)
-        nodo->derecho = insertar(nodo->derecho, actividad);   
+        nodo->derecho = insertar(nodo->derecho, actividad);
 
     return nodo;
 }
@@ -176,11 +187,11 @@ Nodo* insertar(Nodo* nodo, Actividad actividad) {
 Nodo* buscar(Nodo* raiz, char* nombre) {
     // Base Cases: la raíz es nula o la clave está presente en la raíz
     if (raiz == NULL || strcmp(raiz->actividad.nombre, nombre) == 0)
-       return raiz;
+        return raiz;
 
     // La clave es mayor que la raíz
     if (strcmp(raiz->actividad.nombre, nombre) < 0)
-       return buscar(raiz->derecho, nombre);
+        return buscar(raiz->derecho, nombre);
 
     // La clave es menor que la raíz
     return buscar(raiz->izquierdo, nombre);
@@ -255,35 +266,38 @@ int dijkstra(Grafo* grafo, int inicio) {
 
     return diaMasDesocupado + 1;  // Sumar 1 para obtener el número de día
 }
+
 int main() {
+    
     char actividadNombre[50];
     Actividad nuevaActividad;
-    int decision;
-    int n;
-
-    // Crear una cola
     Cola* cola = crearCola();
-
-    // Crear una pila
-    Pila* pila = crearPila();
-
-    printf("Bienvenido. Ingrese cualquier número para continuar.\nIngrese '0' o cualquier otro caracter para finalizar el programa:\n");
-    scanf("%d", &decision);
-
+    Grafo* grafo = crearGrafo();
+    Dia* nuevoDia;
+    int opcion=0;
     
-    if (decision != 0) {
-        int actividadActual = 1;
-
-        // Crear un grafo
-        Grafo* grafo = crearGrafo();
-
-        // Agregar días a la cola, pila, grafo y árbol
-        Dia* nuevoDia;
+    printf("Bienvenido a nuestro humilde programa. Esperamos que les guste :D\n\n"); 
+    printf("Menú principal:\n");
+    printf("\nSeleccione la opción deseada, eligiendo el número correspondiente.\n");
+    printf("\n1- Iniciar programa.\n");
+    printf("\n2- Archivo de Pilas.\n");
+    printf("\n3- Archivo de Colas.\n");
+    printf("\n4- Archivo de árboles.\n");
+    printf("\n5- Archivo de Grafos.\n");
+    printf("\n6- Archivo de Listas.\n");
+    printf("\n7- Salir del programa.\n\n");
+    
+    printf("Opción: ");scanf("%i",&opcion);
+    printf("\n");
+    
+    switch (opcion)
+    {
+    case 1:
 
         for (int i = 1; i <= 5; ++i) {
             nuevoDia = crearDia(i);
 
-            printf("Ingrese las actividades del día '%d'. Ingrese 'fin' para salir:\n", i);
+            printf("Ingrese las actividades del día '%d'.\n", i);
 
             int actividadActual = 1;
 
@@ -296,9 +310,8 @@ int main() {
                 }
 
                 printf("Valor de prioridad: ");
-                scanf("%d", &n);
+                scanf("%d", &nuevaActividad.valor);
 
-                nuevaActividad.valor = n;
                 strcpy(nuevaActividad.nombre, actividadNombre);
 
                 agregarActividad(nuevoDia, nuevaActividad);
@@ -308,27 +321,24 @@ int main() {
             // Operaciones con la cola
             encolar(cola, nuevoDia);
 
-            // Operaciones con la pila
-            apilar(pila, nuevoDia);
-
             // Agregar día al grafo
             grafo->nodos[i - 1] = nuevoDia;
         }
 
-// Calcular y mostrar el orden recomendado
-        double valores[5];
-        Dia* diaActual = cola->frente;
-        for (int i = 0; i < 5 && diaActual != NULL; i++) {
-            valores[i] = diaActual->actividades[0].valor;
-            diaActual = diaActual->siguiente;
-        }
-        ordSeleccion(nuevoDia->actividades, nuevoDia->cantidadActividades);
-
+        // Calcular y mostrar el orden recomendado
         printf("Actividades en orden recomendado:\n");
+
+        // Array para almacenar los días ordenados
+        int diasOrdenados[5];
+
+        // Ordenar los días según los valores
+        ordenarDias(cola, diasOrdenados);
+
+        // Imprimir las actividades según el orden recomendado
         for (int i = 0; i < 5; i++) {
-            diaActual = cola->frente;
+            Dia* diaActual = cola->frente;
             while (diaActual != NULL) {
-                if (diaActual->actividades[0].valor == valores[i]) {
+                if (diaActual->numero == diasOrdenados[i]) {
                     imprimirActividadesDia(diaActual);
                     break;
                 }
@@ -342,23 +352,20 @@ int main() {
         scanf("%s", actividadBuscada);
 
         // Buscar la actividad en los días
-        diaActual = cola->frente;
+        Dia* diaActual = cola->frente;
         int encontrado = 0;
         while (diaActual != NULL) {
-        int indice = busquedaBinaria(diaActual->actividades, diaActual->cantidadActividades, actividadBuscada);
+            int indice = busquedaBinaria(diaActual->actividades, diaActual->cantidadActividades, actividadBuscada);
             if (indice != -1) {
-            printf("La actividad '%s' fue encontrada en el día %d.\n", actividadBuscada, diaActual->numero);
-            encontrado = 1;
-            // Don't break here, continue searching in other days
-            }
-            
-            diaActual = diaActual->siguiente;
-            
+                printf("La actividad '%s' fue encontrada en el día %d.\n", actividadBuscada, diaActual->numero);
+                encontrado = 1;
             }
 
-        // Add this after the loop to print a message if the activity was not found in any day
+            diaActual = diaActual->siguiente;
+        }
+
         if (!encontrado) {
-        printf("La actividad '%s' no fue encontrada en ningún día.\n", actividadBuscada);
+            printf("La actividad '%s' no fue encontrada en ningún día.\n", actividadBuscada);
         }
 
         // Establecer relaciones entre días
@@ -368,9 +375,39 @@ int main() {
         // Calcular el día más desocupado utilizando Dijkstra
         int diaMasDesocupado = dijkstra(grafo, 0);
         printf("\nEl día más desocupado es: %d\n", diaMasDesocupado);
-    } else {
-        printf("Hasta luego :)\n");
-    }
+        
+        break;
+    
+    
+    case 2:
+        printf("2");
+        break;
+    
+    case 3:
+        printf("3");
+        break;
+    
+    case 4:
+        printf("4");
+        break;
 
+    case 5:
+        printf("5");
+        break;
+    
+    case 6:
+        printf("6");
+        break;
+        
+    case 7:
+        printf("Hasta luego :)\n");
+        break;
+    
+    default:
+        printf("Hasta luego :)\n");
+        break;
+  }
+  
     return 0;
+    
 }
