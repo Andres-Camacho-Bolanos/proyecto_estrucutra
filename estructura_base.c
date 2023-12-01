@@ -1,6 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stack.h>
+#include <queue.h>
+#include <list.h>
+#include <graphs.h>
+#include <tree.h>
+
 
 // Estructura para representar una actividad
 typedef struct Actividad {
@@ -380,23 +386,23 @@ int main() {
     
     
     case 2:
-        printf("2");
+        void info_stack();
         break;
     
     case 3:
-        printf("3");
+        void info_queue();
         break;
     
     case 4:
-        printf("4");
+        void info_list();
         break;
 
     case 5:
-        printf("5");
+        void info_graphs();
         break;
     
     case 6:
-        printf("6");
+        void info_trees();
         break;
         
     case 7:
@@ -404,7 +410,7 @@ int main() {
         break;
     
     default:
-        printf("Hasta luego :)\n");
+        printf("Opción no válida\n");
         break;
   }
   
