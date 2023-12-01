@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stack.h>
-#include <queue.h>
-#include <list.h>
-#include <graphs.h>
-#include <tree.h>
+#include "stack.h"
+#include "queue.h"
+#include "list.h"
+#include "graphs.h"
+#include "tree.h"
 
 
 // Estructura para representar una actividad
