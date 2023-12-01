@@ -1,5 +1,5 @@
-#ifndef LIST_H_
-#define LIST_H_
+#ifndef LIST
+#define LIST
 
 void info_list();
 
