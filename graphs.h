@@ -1,5 +1,4 @@
-#ifndef GRAPHS_H_
-#define GRAPHS_H_
+#include <graphs.h>
 
 void info_graphs(){
 
@@ -10,4 +9,4 @@ void info_graphs(){
     printf("\n\nEn resumen, un grafo es una estructura de datos que se utiliza para representar relaciones entre elementos, pueden ser dirigidos o no dirigidos y ponderados o no ponderados. Los grafos son esenciales en una variedad de aplicaciones, como inteligencia artificial, redes sociales, redes de transporte y muchas más.");
 }
 
-#endif
+
