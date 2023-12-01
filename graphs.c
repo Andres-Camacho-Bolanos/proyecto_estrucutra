@@ -1,4 +1,5 @@
-#include <graphs.h>
+#include <stdio.h>
+#include "graphs.h"
 
 void info_graphs(){
 
