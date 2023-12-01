@@ -1,5 +1,5 @@
-#ifndef GRAPHS_H_
-#define GRAPHS_H_
+#ifndef GRAPHS
+#define GRAPHS
 
 void info_graphs();
 
