@@ -1,4 +1,5 @@
-#include<stdio.h>
+#ifndef LIST_H_
+#define LIST_H_
 
 void info_list(){
 
@@ -8,3 +9,5 @@ void info_list(){
     printf("\n\nLa sintaxis para crear una lista y utilizar algunas de estas operaciones varía entre los diferentes lenguajes de programación, pero en general las listas son una herramienta muy útil en la mayoría de los lenguajes para trabajar con colecciones de datos ordenadas.\n");
 
 }
+
+#endif
