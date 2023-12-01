@@ -273,6 +273,17 @@ int dijkstra(Grafo* grafo, int inicio) {
     return diaMasDesocupado + 1;  // Sumar 1 para obtener el número de día
 }
 
+void limpiarBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
+void Enter() {
+    printf("\nPresiona Enter para volver al menú...\n\n");
+    limpiarBuffer();  // Limpia el búfer del teclado
+    getchar();      // Espera a que se presione Enter
+}
+
 int main() {
     
     char actividadNombre[50];
@@ -282,22 +293,24 @@ int main() {
     Dia* nuevoDia;
     int opcion=0;
     
+     while (opcion != 7){ 
+    
     printf("Bienvenido a nuestro humilde programa. Esperamos que les guste :D\n\n"); 
     printf("Menú principal:\n");
     printf("\nSeleccione la opción deseada, eligiendo el número correspondiente.\n");
     printf("\n1- Iniciar programa.\n");
     printf("\n2- Archivo de Pilas.\n");
     printf("\n3- Archivo de Colas.\n");
-    printf("\n4- Archivo de árboles.\n");
+    printf("\n4- Archivo de Árboles.\n");
     printf("\n5- Archivo de Grafos.\n");
     printf("\n6- Archivo de Listas.\n");
     printf("\n7- Salir del programa.\n\n");
     
     printf("Opción: ");scanf("%i",&opcion);
     printf("\n");
-    
-    switch (opcion)
-    {
+     
+    switch (opcion){
+        
     case 1:
 
         for (int i = 1; i <= 5; ++i) {
@@ -382,27 +395,33 @@ int main() {
         int diaMasDesocupado = dijkstra(grafo, 0);
         printf("\nEl día más desocupado es: %d\n", diaMasDesocupado);
         
+        Enter();
         break;
     
     
     case 2:
-        void info_stack();
+        info_stack();
+        Enter();
         break;
     
     case 3:
-        void info_queue();
+        info_queue();
+        Enter();
         break;
     
     case 4:
-        void info_list();
+        info_list();
+        Enter();
         break;
 
     case 5:
-        void info_graphs();
+        info_graphs();
+        Enter();
         break;
     
     case 6:
-        void info_trees();
+        info_trees();
+        Enter();
         break;
         
     case 7:
@@ -411,9 +430,13 @@ int main() {
     
     default:
         printf("Opción no válida\n");
+        Enter();
         break;
-  }
-  
+   }
+
+    fflush(stdin);
+ }
+   
     return 0;
     
 }
