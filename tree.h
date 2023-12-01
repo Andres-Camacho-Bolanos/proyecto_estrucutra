@@ -1,5 +1,5 @@
-#ifndef TREE_H_
-#define TREE_H_
+#ifndef TREE
+#define TREE
 
 void info_trees();
 
