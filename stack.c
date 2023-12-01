@@ -1,4 +1,5 @@
-#include <stack.c>
+#include <stdio.h>
+#include "stack.c"
 
 void info_stack(){
     printf("En programación, una pila (stack) es una estructura de datos lineal que se basa en el principio LIFO (Last In, First Out),es decir, el último elemento en entrar es el primero en salir.\n");
