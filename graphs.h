@@ -1,4 +1,4 @@
-#indef GRAPHS_H_
+#ifndef GRAPHS_H_
 #define GRAPHS_H_
 
 void info_graphs();
