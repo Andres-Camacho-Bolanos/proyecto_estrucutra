@@ -1,4 +1,5 @@
-#include<stdio.h>
+#ifndef TREE_H_
+#define TREE_H_
 
 void info_trees(){
     printf("Los Árboles son las estructuras de datos más utilizadas, pero también una de las más complejas, Los Árboles se caracterizan por almacenar sus nodos en forma jerárquica y no en forma lineal como las listas ligadas, colas, pilas, etc., \n");
@@ -10,3 +11,5 @@ void info_trees(){
     printf("\nGrado: El grado se refiere al número mayor de hijos que tiene alguno de los nodos del Árbol y está limitado por el Orden, ya que este indica el número máximo de hijos que puede tener un nodo.\n");
 
 }
+
+#endif
