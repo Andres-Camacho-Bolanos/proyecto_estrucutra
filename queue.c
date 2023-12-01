@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "queue"
+#include "queue.h"
 
 void info_queue(){
     printf("\n\nEn programación, una cola (queue) es una estructura de datos lineal que se basa en el principio FIFO (First In, First Out), es decir, el primer elemento en entrar es el primero en salir.\n");
