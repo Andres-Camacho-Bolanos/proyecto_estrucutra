@@ -1,5 +1,5 @@
-#ifndef QUEUE_H_
-#define QUEUE_H_
+#ifndef QUEUE
+#define QUEUE
 
 void info_queue();
 
