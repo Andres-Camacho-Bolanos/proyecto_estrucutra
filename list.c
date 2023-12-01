@@ -1,4 +1,5 @@
-#include <list.h>
+#include <stdio.h>
+#include "list.h"
 
 void info_list(){
 
