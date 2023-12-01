@@ -1,4 +1,5 @@
-#include <tree.h>
+#include <stdio.h>
+#include "tree.h"
 
 void info_trees(){
     printf("Los Árboles son las estructuras de datos más utilizadas, pero también una de las más complejas, Los Árboles se caracterizan por almacenar sus nodos en forma jerárquica y no en forma lineal como las listas ligadas, colas, pilas, etc., \n");
